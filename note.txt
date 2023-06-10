@@ -1,0 +1,4 @@
+docker build -t momentvn/tenengine:1.0.2023 .
+docker tag tenengine:1.0.2023 momentvn/tenengine
+docker push momentvn/tenengine
+docker run --name tenengine -it momentvn/tenengine:latest

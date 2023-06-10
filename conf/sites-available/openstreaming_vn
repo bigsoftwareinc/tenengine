@@ -1,0 +1,48 @@
+server {
+	listen 80;
+	listen [::]:80;
+	server_name openstreaming.vn;
+	root /usr/share/nginx/html;
+	if ($host = openstreaming.vn) {
+		return 301 https://$host$request_uri;
+	}
+
+	location /.well-known/acme-challenge {
+		proxy_set_header Host $host;
+		proxy_set_header X-Real_IP $remote_addr;
+		proxy_set_header X-Forwarded-For $remote_addr:$remote_port;
+		proxy_pass http://127.0.0.1:9180;
+	}
+
+}
+
+server {
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2;
+	server_name openstreaming.vn;
+	ssl_certificate /etc/nginx/ssl/openstreaming.vn/fullchain.cer;
+	ssl_certificate_key /etc/nginx/ssl/openstreaming.vn/openstreaming.vn.key;
+	root /usr/share/nginx/html;
+
+	location / {
+	    client_max_body_size    2000m;
+		proxy_pass http://bigcomputer0;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Scheme $scheme;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+		proxy_set_header Content-Security-Policy "upgrade-insecure-requests";
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header X-Forwarded-Host $host;
+	}
+
+	location /.well-known/acme-challenge {
+		proxy_set_header Host $host;
+		proxy_set_header X-Real_IP $remote_addr;
+		proxy_set_header X-Forwarded-For $remote_addr:$remote_port;
+		proxy_pass http://127.0.0.1:9180;
+	}
+
+}
+
